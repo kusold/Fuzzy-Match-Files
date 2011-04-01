@@ -1,19 +1,21 @@
 import time
+import csv
+import difflib
 
 def ignoredWords (word):
 	filtered = word.lower()
-	if "university" in word:
-		filtered = word.replace("university", "")
-	if "univ" in word:
-		filtered = word.replace("univ", "")
-	if " of " in word:
-		filtered = word.replace("of", "")
-	if "pharmaceuticals" in word:
-		filtered = word.replace("pharmaceuticals", "")
-	if "pharmaceutical" in word:
-		filtered = word.replace("pharmaceutical", "")
-	if "academy of sciences" in word:
-		filtered = word.replace("academy of sciences", "")	
+	if "university" in filtered:
+		filtered = filtered.replace("university", "")
+	if "univ" in filtered:
+		filtered = filtered.replace("univ", "")
+	if " of " in filtered:
+		filtered = filtered.replace("of", "")
+	if "pharmaceuticals" in filtered:
+		filtered = filtered.replace("pharmaceuticals", "")
+	if "pharmaceutical" in filtered:
+		filtered = filtered.replace("pharmaceutical", "")
+	if "academy of sciences" in filtered:
+		filtered = filtered.replace("academy of sciences", "")	
 	return filtered
 	
 def create2DArray (list):
@@ -57,19 +59,35 @@ fMatch75 = open("Match75.csv", 'w')
 Match75 = csv.writer(fMatch75, dialect='excel')
 try:
 	Match75.writerow(['File A', 'File B', 'Clean File A', 'Clean File B', 'Ratio'])
-	index = 0
 	for item in cleanListA:
-		
-		match = difflib.get_close_matches(item, cleanListB, 1, 0.75)		
+		match = difflib.get_close_matches(item, cleanListB, 1, 0.75)
 		if len(match) > 0:
-			setBMatch = [re.match(*.match.*, i) for i in setB_LeftOver]
-			ratio = difflib.SequenceMatcher(None, setA_LeftOver[i], setBMatch).ratio()
-			#print (match[0])
-			#print (item)
-			#print (ratio)
-			row = [item.rstrip(), match[0].rstrip(), ratio]
-			Match75.writerow(row)
-		index = index+1	
+			print (match[0])
+			print (item)
+			ratio = difflib.SequenceMatcher(None, item, match[0]).ratio()
+			print (ratio)
+			found = 0
+			for group in arrayB:
+				if match[0] == group[1]:
+					origB = group[0]
+					found = found + 1
+			for group in arrayA:
+				if item == group[1]:
+					origA = group[0]
+					found = found + 2
+			if found == 3:
+				row = [origA.rstrip(), origB.rstrip(), item.rstrip(), match[0].rstrip(), ratio]
+				Match75.writerow(row)
+			elif found == 2:
+				row = [origA.rstrip(), "NULL", item.rstrip(), match[0].rstrip(), ratio]
+				Match75.writerow(row)
+			elif found == 1:
+				row = ["NULL", origB.rstrip(), item.rstrip(), match[0].rstrip(), ratio]
+				Match75.writerow(row)
+			else:
+				row = ["NULL", "NULL", item.rstrip(), match[0].rstrip(), ratio]
+				Match75.writerow(row)
+			
 finally:
 	fMatch75.close()
 
